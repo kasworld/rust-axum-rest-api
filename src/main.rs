@@ -1,6 +1,6 @@
 use dotenvy::dotenv;
 use sqlx::sqlite::{SqlitePoolOptions, SqlitePool};
-use axum::{extract::Extension, routing::get, Json, Router, http::StatusCode, extract::Path};
+use axum::{extract::Extension, routing::{get,post}, Json, Router, http::StatusCode, extract::Path};
 use tracing::{info, Level};
 use tracing_subscriber;
 use serde::{Serialize,Deserialize};
