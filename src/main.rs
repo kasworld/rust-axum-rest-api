@@ -7,7 +7,7 @@ use serde::{Serialize,Deserialize};
 use serde_json;
 
 #[derive(Serialize, Deserialize)]
-struct Post {
+struct Document {
     id: i64,
     user_id: Option<i64>,
     title: String,
@@ -15,22 +15,24 @@ struct Post {
 }
 
 #[derive(Serialize, Deserialize)]
-struct CreatePost {
+struct CreateDocument {
     title: String,
     body: String,
     user_id: Option<i64>,
 }
 
  #[derive(Serialize, Deserialize)]
-struct UpdatePost {
+struct UpdateDocument {
     title: String,
     body: String,
     user_id: Option<i64>,
 }
 
-#[derive(Serialize)]
-struct Message {
-    message: String,
+#[derive(Serialize, Deserialize)]
+struct User {
+    id: i64,
+    username: String,
+    email: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -39,13 +41,6 @@ struct CreateUser {
     email: String,
 }
  
-#[derive(Serialize, Deserialize)]
-struct User {
-    id: i64,
-    username: String,
-    email: String,
-}
-
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
     // initialize tracing for logging
@@ -61,8 +56,8 @@ async fn main() -> Result<(), sqlx::Error> {
     // build our application with a route
     let app = Router::new()
     .route("/users", post(create_user))
-    .route("/posts", get(get_posts).post(create_post))
-    .route("/posts/{id}", get(get_post).put(update_post).delete(delete_post))
+    .route("/posts", get(get_document_list).post(create_document))
+    .route("/posts/{id}", get(get_document).put(update_document).delete(delete_document))
     .layer(Extension(pool));
 
     // run our app with hyper, listening globally on port 5000
@@ -73,15 +68,10 @@ async fn main() -> Result<(), sqlx::Error> {
     Ok(())
 }
  
-// handler for GET /
-async fn root() -> &'static str {
-    "Hello, world!"
-}
-
-async fn get_posts(
+async fn get_document_list(
     Extension(pool): Extension<SqlitePool>
-) -> Result<Json<Vec<Post>>, StatusCode> {
-    let posts = sqlx::query_as!(Post, "SELECT id, user_id, title, body FROM posts")
+) -> Result<Json<Vec<Document>>, StatusCode> {
+    let posts = sqlx::query_as!(Document, "SELECT id, user_id, title, body FROM posts")
         .fetch_all(&pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -89,12 +79,12 @@ async fn get_posts(
     Ok(Json(posts))
 }
 
-async fn get_post(
+async fn get_document(
     Extension(pool): Extension<SqlitePool>,
     Path(id): Path<i64>,
-) -> Result<Json<Post>, StatusCode> {
+) -> Result<Json<Document>, StatusCode> {
     let post = sqlx::query_as!(
-        Post,
+        Document,
         "SELECT id, user_id, title, body FROM posts WHERE id = $1",
         id
     )
@@ -106,12 +96,12 @@ async fn get_post(
 }
 
  
-async fn create_post(
+async fn create_document(
     Extension(pool): Extension<SqlitePool>,
-    Json(new_post): Json<CreatePost>,
-) -> Result<Json<Post>, StatusCode> {
+    Json(new_post): Json<CreateDocument>,
+) -> Result<Json<Document>, StatusCode> {
     let post = sqlx::query_as!(
-        Post,
+        Document,
         "INSERT INTO posts (user_id, title, body) VALUES ($1, $2, $3) RETURNING id, title, body, user_id",
         new_post.user_id,
         new_post.title,
@@ -125,13 +115,13 @@ async fn create_post(
 }
  
  
-async fn update_post(
+async fn update_document(
     Extension(pool): Extension<SqlitePool>,
     Path(id): Path<i64>,
-    Json(updated_post): Json<UpdatePost>,
-) -> Result<Json<Post>, StatusCode> {
+    Json(updated_post): Json<UpdateDocument>,
+) -> Result<Json<Document>, StatusCode> {
     let post = sqlx::query_as!(
-        Post,
+        Document,
         "UPDATE posts SET title = $1, body = $2, user_id = $3 WHERE id = $4 RETURNING id, user_id, title, body",
         updated_post.title,
         updated_post.body,
@@ -148,7 +138,7 @@ async fn update_post(
 }
 
 
-async fn delete_post(
+async fn delete_document(
     Extension(pool): Extension<SqlitePool>,
     Path(id): Path<i64>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
