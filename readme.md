@@ -21,7 +21,8 @@ https://www.rustfinity.com/blog/create-high-performance-rest-api-with-rust
     cargo install sqlx-cli --no-default-features --features native-tls,sqlite
     sqlx database create
     sqlx migrate add create_users_table
-    sqlx migrate add create_posts_table
+    <!-- sqlx migrate add create_posts_table -->
+    sqlx migrate add create_documents_table
     sqlx migrate run
     cargo add tokio -F full
     cargo add dotenvy

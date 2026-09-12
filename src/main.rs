@@ -71,7 +71,7 @@ async fn main() -> Result<(), sqlx::Error> {
 async fn get_document_list(
     Extension(pool): Extension<SqlitePool>
 ) -> Result<Json<Vec<Document>>, StatusCode> {
-    let posts = sqlx::query_as!(Document, "SELECT id, user_id, title, body FROM posts")
+    let posts = sqlx::query_as!(Document, "SELECT id, user_id, title, body FROM documents")
         .fetch_all(&pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -83,55 +83,55 @@ async fn get_document(
     Extension(pool): Extension<SqlitePool>,
     Path(id): Path<i64>,
 ) -> Result<Json<Document>, StatusCode> {
-    let post = sqlx::query_as!(
+    let doc = sqlx::query_as!(
         Document,
-        "SELECT id, user_id, title, body FROM posts WHERE id = $1",
+        "SELECT id, user_id, title, body FROM documents WHERE id = $1",
         id
     )
     .fetch_one(&pool)
     .await
     .map_err(|_| StatusCode::NOT_FOUND)?;
  
-    Ok(Json(post))
+    Ok(Json(doc))
 }
 
  
 async fn create_document(
     Extension(pool): Extension<SqlitePool>,
-    Json(new_post): Json<CreateDocument>,
+    Json(new_doc): Json<CreateDocument>,
 ) -> Result<Json<Document>, StatusCode> {
-    let post = sqlx::query_as!(
+    let doc = sqlx::query_as!(
         Document,
-        "INSERT INTO posts (user_id, title, body) VALUES ($1, $2, $3) RETURNING id, title, body, user_id",
-        new_post.user_id,
-        new_post.title,
-        new_post.body
+        "INSERT INTO documents (user_id, title, body) VALUES ($1, $2, $3) RETURNING id, title, body, user_id",
+        new_doc.user_id,
+        new_doc.title,
+        new_doc.body
     )
     .fetch_one(&pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
  
-    Ok(Json(post))
+    Ok(Json(doc))
 }
- 
+
  
 async fn update_document(
     Extension(pool): Extension<SqlitePool>,
     Path(id): Path<i64>,
-    Json(updated_post): Json<UpdateDocument>,
+    Json(updated_doc): Json<UpdateDocument>,
 ) -> Result<Json<Document>, StatusCode> {
-    let post = sqlx::query_as!(
+    let doc = sqlx::query_as!(
         Document,
-        "UPDATE posts SET title = $1, body = $2, user_id = $3 WHERE id = $4 RETURNING id, user_id, title, body",
-        updated_post.title,
-        updated_post.body,
-        updated_post.user_id,
+        "UPDATE documents SET title = $1, body = $2, user_id = $3 WHERE id = $4 RETURNING id, user_id, title, body",
+        updated_doc.title,
+        updated_doc.body,
+        updated_doc.user_id,
         id
     )
     .fetch_one(&pool)
     .await;
  
-    match post {
+    match doc {
         Ok(post) => Ok(Json(post)),
         Err(_) => Err(StatusCode::NOT_FOUND),
     }
@@ -142,13 +142,13 @@ async fn delete_document(
     Extension(pool): Extension<SqlitePool>,
     Path(id): Path<i64>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    let result = sqlx::query!("DELETE FROM posts WHERE id = $1", id)
+    let result = sqlx::query!("DELETE FROM documents WHERE id = $1", id)
         .execute(&pool)
         .await;
  
     match result {
         Ok(_) => Ok(Json(serde_json::json! ({
-            "message": "Post deleted successfully"
+            "message": "Document deleted successfully"
         }))),
         Err(_) => Err(StatusCode::NOT_FOUND),
     }
