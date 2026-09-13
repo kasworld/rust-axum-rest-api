@@ -1,0 +1,21 @@
+# ust REST Client Huachao Mao
+
+###
+POST http://localhost:5000/users HTTP/1.1
+content-type: application/json
+
+{
+  "username": "rustfinity",
+  "email": "rustfinity@example.com"
+}
+
+###
+
+POST http://localhost:5000/posts HTTP/1.1
+content-type: application/json
+
+{
+  "title": "First Post",
+  "body": "This is the content of the first post.",
+  "user_id": 1
+}

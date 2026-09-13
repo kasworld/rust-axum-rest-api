@@ -28,3 +28,4 @@ https://www.rustfinity.com/blog/create-high-performance-rest-api-with-rust
     cargo add dotenvy
     cargo add axum serde tracing tracing_subscriber --features serde/derive
     cargo add serde_json
+
