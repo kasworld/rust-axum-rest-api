@@ -56,8 +56,8 @@ async fn main() -> Result<(), sqlx::Error> {
     // build our application with a route
     let app = Router::new()
     .route("/users", post(create_user))
-    .route("/posts", get(get_document_list).post(create_document))
-    .route("/posts/{id}", get(get_document).put(update_document).delete(delete_document))
+    .route("/docs", get(get_document_list).post(create_document))
+    .route("/docs/{id}", get(get_document).put(update_document).delete(delete_document))
     .layer(Extension(pool));
 
     // run our app with hyper, listening globally on port 5000

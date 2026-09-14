@@ -11,7 +11,7 @@ content-type: application/json
 
 ###
 
-POST http://localhost:5000/posts HTTP/1.1
+POST http://localhost:5000/docs HTTP/1.1
 content-type: application/json
 
 {
@@ -19,3 +19,37 @@ content-type: application/json
   "body": "This is the content of the first post.",
   "user_id": 1
 }
+
+###
+
+POST http://localhost:5000/docs HTTP/1.1
+content-type: application/json
+
+{
+  "title": "2nd doc",
+  "body": "This is the content of the 2nd doc",
+  "user_id": 1
+}
+
+###
+
+POST http://localhost:5000/docs HTTP/1.1
+content-type: application/json
+
+{
+  "title": "두번째 문서",
+  "body": "호호호 안녕하신가?",
+  "user_id": 1
+}
+
+###
+
+GET http://localhost:5000/docs HTTP/1.1
+
+###
+
+GET http://localhost:5000/docs/1 HTTP/1.1
+
+###
+
+GET http://localhost:5000/users HTTP/1.1
