@@ -137,6 +137,12 @@ async fn update_document(
 }
 
 
+async fn hello_world() -> Result<Json<serde_json::Value>, StatusCode> {
+    Ok(Json(serde_json::json! ({
+            "message": "hello world!"
+        })))
+}
+
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
     // initialize tracing for logging
@@ -151,6 +157,7 @@ async fn main() -> Result<(), sqlx::Error> {
 
     // build our application with a route
     let app = Router::new()
+    .route("/", get(hello_world))
     .route("/users", post(create_user))
     .route("/docs", get(get_document_list).post(create_document))
     .route("/docs/{id}", get(get_document).put(update_document).delete(delete_document))
